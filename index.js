@@ -2,6 +2,8 @@ var AWS = require('aws-sdk');
 AWS.config.region = 'us-east-1';
 let docClient = new AWS.DynamoDB.DocumentClient();
 
+const APP_NAME = 'Crypto Finder';
+
 exports.handler = function(event, context) {
   try {
     console.log('event.session.application.applicationId=' + event.session.application.applicationId);
@@ -51,6 +53,8 @@ function onIntent(intentRequest, session, callback) {
     sectorIntent(intent, session, callback);
   } else if ('Sandstorm' === intentName) {
     sandstormIntent(intent, session, callback);
+  } else if ('PortfolioBalance' === intentName) {
+    portfolioBalanceIntent(intent, session, callback);
   } else if ('AMAZON.HelpIntent' === intentName) {
     getWelcomeResponse(callback);
   } else if ('AMAZON.StopIntent' === intentName || 'AMAZON.CancelIntent' === intentName || 'Noop' === intentName) {
@@ -68,7 +72,8 @@ function getWelcomeResponse(callback) {
   // If we wanted to initialize the session to have some attributes we could add those here.
   var sessionAttributes = {};
   var cardTitle = 'Welcome';
-  var speechOutput = 'Welcome to Las Vegas Powergrid ' + 'How can I help today?';
+  const speechOutput = `Welcome to ${APP_NAME}, how can I help you today?
+  I can check your portfolio balance, the price of coins, or tell you a joke`;
 
   // If the user either does not reply to the welcome message or says something that is not
   // understood, they will be prompted again with this text.
@@ -135,6 +140,7 @@ function sprinklerIntent(intent, session, callback) {
     callback({}, buildSpeechletResponse(cardTitle, response, null, shouldEndSession));
   });
 }
+
 function sandstormIntent(intent, session, callback) {
   var cardTitle = 'Performing Sandstorm';
   var shouldEndSession = false;
@@ -154,6 +160,21 @@ function sandstormIntent(intent, session, callback) {
 
     callback({}, buildSpeechletResponse(cardTitle, response, null, shouldEndSession));
   });
+}
+
+function portfolioBalanceIntent(intent, session, callback) {
+  const sessionAttributes = {};
+  const cardTitle = 'Performing portfolio balance check';
+  const speechOutput = 'Your portfolio worths 0.15 bitcoin increasing by 150% in the last 24 hours';
+  const shouldEndSession = false;  
+
+  callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
+}
+
+function checkPriceIntent(intent, session, callback) {
+  const sessionAttributes = {};
+  const cardTitle = 'Performing check coin price';
+  
 }
 
 function handleSessionEndRequest(callback) {
