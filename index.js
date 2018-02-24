@@ -55,6 +55,10 @@ function onIntent(intentRequest, session, callback) {
     sandstormIntent(intent, session, callback);
   } else if ('PortfolioBalance' === intentName) {
     portfolioBalanceIntent(intent, session, callback);
+  } else if ('CheckPrice' === intentName) {
+    checkPriceIntent(intent, session, callback);
+  } else if ('ListCoin' === intentName) {
+    checkCoinIntent(intent, session, callback);
   } else if ('AMAZON.HelpIntent' === intentName) {
     getWelcomeResponse(callback);
   } else if ('AMAZON.StopIntent' === intentName || 'AMAZON.CancelIntent' === intentName || 'Noop' === intentName) {
@@ -166,7 +170,7 @@ function portfolioBalanceIntent(intent, session, callback) {
   const sessionAttributes = {};
   const cardTitle = 'Performing portfolio balance check';
   const speechOutput = 'Your portfolio worths 0.15 bitcoin increasing by 150% in the last 24 hours';
-  const shouldEndSession = false;  
+  const shouldEndSession = false;
 
   callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
 }
@@ -174,7 +178,23 @@ function portfolioBalanceIntent(intent, session, callback) {
 function checkPriceIntent(intent, session, callback) {
   const sessionAttributes = {};
   const cardTitle = 'Performing check coin price';
-  
+  const coin = intent.slots.Coin.value;
+  const coinComparer = intent.slots.CoinComparer.value;
+  const quantity = intent.slots.Quantity.value;
+
+  const speechOutput = `Hello ${JSON.stringify(intent.slots, null, 2)}`;
+  const shouldEndSession = false;
+
+  callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
+}
+
+function checkCoinIntent(intent, session, callback) {
+  const sessionAttributes = {};
+  const cardTitle = 'Performing check coin portfolio';
+  const speechOutput = 'You have 5 billion BitCoin';
+  const shouldEndSession = false;
+
+  callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
 }
 
 function handleSessionEndRequest(callback) {
