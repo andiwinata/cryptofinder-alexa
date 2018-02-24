@@ -192,7 +192,7 @@ function checkPriceIntent(intent, session, callback) {
   const sessionAttributes = {};
   const cardTitle = 'Performing check coin price';
   const coin = intent.slots.Coin.value;
-  const coinComparer = intent.slots.CoinComparer.value;
+  const coinComparer = intent.slots.CoinComparison.value;
   const quantity = intent.slots.Quantity.value;
 
   let speechOutput;
