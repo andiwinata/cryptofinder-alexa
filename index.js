@@ -57,6 +57,8 @@ function onIntent(intentRequest, session, callback) {
     portfolioBalanceIntent(intent, session, callback);
   } else if ('CheckPrice' === intentName) {
     checkPriceIntent(intent, session, callback);
+  } else if ('News' === intentName) {
+    checkNewsIntent(intent, session, callback);
   } else if ('ListCoin' === intentName) {
     checkCoinIntent(intent, session, callback);
   } else if ('AMAZON.HelpIntent' === intentName) {
@@ -66,6 +68,17 @@ function onIntent(intentRequest, session, callback) {
   } else {
     throw 'Invalid intent';
   }
+}
+
+function checkNewsIntent(intent, session, callback) {
+  const sessionAttributes = {};
+  const cardTitle = 'Performing news check';
+  const speechOutput = `The latest crypto news: 
+  Nano Goes Giga in Down Week for Crypto Prices
+  Bitcoin Is Back Over $10K, But Rally Looks Weak`;
+  const shouldEndSession = false;
+
+  callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
 }
 
 function onSessionEnded(sessionEndedRequest, session) {
