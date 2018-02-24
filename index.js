@@ -204,7 +204,7 @@ function checkPriceIntent(intent, session, callback) {
       speechOutput = `${quantity || 1} ${coin} is equal to ${Math.random() * 1000 + 100} ${coinComparison || 'USD'}`;
     }
   } catch (e) {
-    speechOutput = `Hello ${JSON.stringify(intent.slots, null, 2)}\n${Math.random()}\n${intent.slots.CoinComparison.value}`;
+    speechOutput = `Hello ${JSON.stringify(intent.slots, null, 2)}\n${Math.random()}\n${intent.slots.CoinComparison}`;
   }
 
   const shouldEndSession = false;
