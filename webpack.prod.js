@@ -1,11 +1,6 @@
+const defaultConfig = require('./webpack.config');
 // bundling alexa-sdk into 1 file
-// also parses alexa-sdk to es5
-module.exports = {
-  entry: './src/index.js',
-  output: {
-    filename: 'src/alexa-sdk-bundle.js',
-    libraryTarget: 'commonjs2',
-  },
+module.exports = Object.assign({}, defaultConfig, {
   module: {
     rules: [
       {
@@ -19,4 +14,4 @@ module.exports = {
       },
     ],
   },
-};
+});
