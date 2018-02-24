@@ -1,267 +1,97 @@
-var AWS = require('aws-sdk');
-AWS.config.region = 'us-east-1';
-let docClient = new AWS.DynamoDB.DocumentClient();
+// documentation can be found on:
+// https://github.com/alexa/alexa-skills-kit-sdk-for-nodejs#confirm-intent-directive
+// https://github.com/alexa/skill-sample-nodejs-fact/blob/en-US/lambda/custom/index.js
 
+const Alexa = require('alexa-sdk');
+
+const APP_ID = 'amzn1.ask.skill.e915ff40-2010-476f-a846-7ad7e540795c';
 const APP_NAME = 'Crypto Finder';
 
-exports.handler = function(event, context) {
-  try {
-    console.log('event.session.application.applicationId=' + event.session.application.applicationId);
-    if (event.session.new) {
-      onSessionStarted({ requestId: event.request.requestId }, event.session);
-    }
+const STOP_MESSAGE = 'Happy to help, till next time!';
 
-    if (event.request.type === 'LaunchRequest') {
-      onLaunch(event.request, event.session, function callback(sessionAttributes, speechletResponse) {
-        context.succeed(buildResponse(sessionAttributes, speechletResponse));
-      });
-    } else if (event.request.type === 'IntentRequest') {
-      onIntent(event.request, event.session, function callback(sessionAttributes, speechletResponse) {
-        context.succeed(buildResponse(sessionAttributes, speechletResponse));
-      });
-    } else if (event.request.type === 'SessionEndedRequest') {
-      onSessionEnded(event.request, event.session);
-      context.succeed();
-    }
-  } catch (e) {
-    context.fail('Exception: ' + e);
-  }
+const defaultHandlers = {
+  LaunchRequest: function() {
+    // pass intent to other intent
+    this.emit('LaunchIntent');
+  },
+  LaunchIntent: function() {
+    const cardTitle = 'Welcome';
+    const speechOutput = `Welcome to ${APP_NAME}, how can I help you today?
+    I can check your portfolio balance, the price of coins, etc`;
+    const imageObj = undefined;
+
+    // emit response directly
+    this.emit(':tellWithCard', speechOutput, cardTitle, speechOutput, imageObj);
+  },
+  'AMAZON.HelpIntent': function() {
+    this.emit('LaunchIntent');
+  },
+  'AMAZON.CancelIntent': function() {
+    this.response.speak(STOP_MESSAGE).cardRenderer('Session Ended', STOP_MESSAGE, undefined);
+    this.emit(':responseReady');
+  },
+  'AMAZON.StopIntent': function() {
+    this.response.speak(STOP_MESSAGE).cardRenderer('Session Ended', STOP_MESSAGE, undefined);
+    this.emit(':responseReady');
+  },
 };
 
-function onSessionStarted(sessionStartedRequest, session) {
-  console.log('onSessionStarted requestId=' + sessionStartedRequest.requestId + ', sessionId=' + session.sessionId);
-}
+const finderHandlers = {
+  CheapestExchange: function() {
+    const cardTitle = 'Cheapest Exchange';
+    const speechOutput = 'Bittrex has eth for $901.8, compared to average of 21 exchanges sitting on $905.10';
+    this.emit(':tellWithCard', speechOutput, cardTitle, speechOutput, undefined);
+  },
 
-function onLaunch(launchRequest, session, callback) {
-  console.log('onLaunch requestId=' + launchRequest.requestId + ', sessionId=' + session.sessionId);
-  getWelcomeResponse(callback);
-}
+  CheckPrice: function() {
+    const cardTitle = 'Performing check coin price';
+    const intent = this.event.request.intent;
 
-function onIntent(intentRequest, session, callback) {
-  console.log('onIntent requestId=' + intentRequest.requestId + ', sessionId=' + session.sessionId);
+    let speechOutput;    
+    try {
+      const slots = intent.slots;
+      const coin = slots.Coin && slots.Coin.value;
+      const coinComparison = slots.CoinComparison && slots.CoinComparison.value;
+      const quantity = slots.Quantity && slots.Quantity.value;
 
-  var intent = intentRequest.intent,
-    intentName = intentRequest.intent.name;
-
-  // Dispatch to your skill's intent handlers
-  if ('Efficiency' === intentName) {
-    effiencyIntent(intent, session, callback);
-    //sectorIntent(intent, session, callback);
-  } else if ('Sprinklers' === intentName) {
-    sprinklerIntent(intent, session, callback);
-  } else if ('Sectors' === intentName) {
-    sectorIntent(intent, session, callback);
-  } else if ('Sandstorm' === intentName) {
-    sandstormIntent(intent, session, callback);
-  } else if ('PortfolioBalance' === intentName) {
-    portfolioBalanceIntent(intent, session, callback);
-  } else if ('CheckPrice' === intentName) {
-    checkPriceIntent(intent, session, callback);
-  } else if ('News' === intentName) {
-    checkNewsIntent(intent, session, callback);
-  } else if ('ListCoin' === intentName) {
-    checkCoinIntent(intent, session, callback);
-  } else if ('AMAZON.HelpIntent' === intentName) {
-    getWelcomeResponse(callback);
-  } else if ('AMAZON.StopIntent' === intentName || 'AMAZON.CancelIntent' === intentName || 'Noop' === intentName) {
-    handleSessionEndRequest(callback);
-  } else {
-    throw 'Invalid intent';
-  }
-}
-
-function checkNewsIntent(intent, session, callback) {
-  const sessionAttributes = {};
-  const cardTitle = 'Performing news check';
-  const speechOutput = `The latest crypto news: 
-  Nano Goes Giga in Down Week for Crypto Prices
-  Bitcoin Is Back Over $10K, But Rally Looks Weak`;
-  const shouldEndSession = false;
-
-  callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
-}
-
-function onSessionEnded(sessionEndedRequest, session) {
-  console.log('onSessionEnded requestId=' + sessionEndedRequest.requestId + ', sessionId=' + session.sessionId);
-}
-
-function getWelcomeResponse(callback) {
-  // If we wanted to initialize the session to have some attributes we could add those here.
-  var sessionAttributes = {};
-  var cardTitle = 'Welcome';
-  const speechOutput = `Welcome to ${APP_NAME}, how can I help you today?
-  I can check your portfolio balance, the price of coins, or tell you a joke`;
-
-  // If the user either does not reply to the welcome message or says something that is not
-  // understood, they will be prompted again with this text.
-  var repromptText = 'Thanks for checking in';
-  var shouldEndSession = false;
-
-  callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
-}
-
-function effiencyIntent(intent, session, callback) {
-  var cardTitle = 'Power Grid Efficiency';
-  var shouldEndSession = false;
-
-  const params = { TableName: 'solar-sectors' };
-  docClient.scan(params, (err, data) => {
-    if (err) callback({}, buildSpeechletResponse(cardTitle, err, null, shouldEndSession));
-
-    var average = 0;
-
-    for (let x of data.Items) average += x.Effeciency;
-    let response = 'The power grid is running at ' + average / 4 + ' percent efficiency.';
-    callback({}, buildSpeechletResponse(cardTitle, response, null, shouldEndSession));
-  });
-}
-
-function sectorIntent(intent, session, callback) {
-  var cardTitle = 'Sector Performance';
-  var shouldEndSession = false;
-
-  const params = { TableName: 'solar-sectors' };
-  docClient.scan(params, (err, data) => {
-    if (err) callback({}, buildSpeechletResponse(cardTitle, err, null, shouldEndSession));
-
-    var response = "Here's how your sectors are performing: ";
-    for (let x of data.Items) {
-      response += x.Display + ': ' + x.Effeciency + ' percent';
-      if (x.Effeciency < 80) {
-        response += ' efficiency, it requires maintenance. ';
+      if (!coin) {
+        speechOutput = `Sorry you need to provide what coin you want to check`;
       } else {
-        response += x.ID === 3 ? ' efficiency. ' : '. ';
+        speechOutput = `${quantity || 1} ${coin} is equal to ${Math.random() * 1000 + 100} ${coinComparison || 'USD'}`;
       }
+    } catch (e) {
+      speechOutput = `Oops, looks like checking price failed, error: ${JSON.stringify(intent.slots, null, 2)}`;
     }
-    callback({}, buildSpeechletResponse(cardTitle, response, null, shouldEndSession));
-  });
-}
 
-function sprinklerIntent(intent, session, callback) {
-  var cardTitle = 'Turning on Sprinkers';
-  var shouldEndSession = false;
+    this.emit(':tellWithCard', speechOutput, cardTitle, speechOutput, undefined);
+  },
 
-  let params = {
-    TableName: 'solar-sectors',
-    Key: { ID: 1 },
-    UpdateExpression: 'set Effeciency = :eff',
-    ExpressionAttributeValues: { ':eff': 88 },
-    ReturnValues: 'UPDATED_NEW',
-  };
+  ListCoin: function() {
+    const cardTitle = 'Performing check coin portfolio';
+    const speechOutput = 'You have 1.253 BitCoin, 10.2534 Ethereum, and 81.342 NEO';
 
-  docClient.update(params, (err, data) => {
-    if (err) if (err) callback({}, buildSpeechletResponse(cardTitle, err, null, shouldEndSession));
+    this.emit(':tellWithCard', speechOutput, cardTitle, speechOutput, undefined);
+  },
 
-    let response = 'Turning on sprinklers in Sector D, for five minutes.';
+  News: function() {
+    const cardTitle = 'Performing news check';
+    const speechOutput = `The latest crypto news. Nano Goes Giga in Down Week for Crypto Prices. Bitcoin Is Back Over $10K, but Rally Looks Weak`;
 
-    callback({}, buildSpeechletResponse(cardTitle, response, null, shouldEndSession));
-  });
-}
+    this.emit(':tellWithCard', speechOutput, cardTitle, speechOutput, undefined);
+  },
 
-function sandstormIntent(intent, session, callback) {
-  var cardTitle = 'Performing Sandstorm';
-  var shouldEndSession = false;
+  PortfolioBalance: function() {
+    const cardTitle = 'Performing portfolio balance check';
+    const speechOutput = 'Your portfolio worths 1.253 bitcoin increasing by 5.24% in the last 24 hours';
 
-  let params = {
-    TableName: 'solar-sectors',
-    Key: { ID: 1 },
-    UpdateExpression: 'set Effeciency = :eff',
-    ExpressionAttributeValues: { ':eff': 66 },
-    ReturnValues: 'UPDATED_NEW',
-  };
+    this.emit(':tellWithCard', speechOutput, cardTitle, speechOutput, undefined);
+  },
+};
 
-  docClient.update(params, (err, data) => {
-    if (err) if (err) callback({}, buildSpeechletResponse(cardTitle, err, null, shouldEndSession));
-
-    let response = 'Hold on, pouring sand onto Sector D.';
-
-    callback({}, buildSpeechletResponse(cardTitle, response, null, shouldEndSession));
-  });
-}
-
-function portfolioBalanceIntent(intent, session, callback) {
-  const sessionAttributes = {};
-  const cardTitle = 'Performing portfolio balance check';
-  const speechOutput = 'Your portfolio worths 0.15 bitcoin increasing by 150% in the last 24 hours';
-  const shouldEndSession = false;
-
-  callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
-}
-
-function checkPriceIntent(intent, session, callback) {
-  const sessionAttributes = {};
-  const cardTitle = 'Performing check coin price';
-
-  try {
-    const coin = intent.slots.Coin.value;
-    const coinComparison = intent.slots.CoinComparison.value;
-    const quantity = intent.slots.Quantity.value;
-  
-    let speechOutput;
-    if (!coin) {
-      speechOutput = `Sorry you need to provide what coin you want to check`;
-    } else {
-      speechOutput = `${quantity || 1} ${coin} is equal to ${Math.random() * 1000 + 100} ${coinComparison || 'USD'}`;
-    }
-  } catch (e) {
-    speechOutput = `Hello ${JSON.stringify(intent.slots, null, 2)}\n${Math.random()}\n${intent.slots.CoinComparison}`;
-  }
-
-  const shouldEndSession = false;
-
-  callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
-}
-
-function checkCoinIntent(intent, session, callback) {
-  const sessionAttributes = {};
-  const cardTitle = 'Performing check coin portfolio';
-  const speechOutput = 'You have 5 billion BitCoin';
-  const shouldEndSession = false;
-
-  callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
-}
-
-function handleSessionEndRequest(callback) {
-  var cardTitle = 'Session Ended';
-  var speechOutput = 'Happy to help, till next time!';
-  // Setting this to true ends the session and exits the skill.
-  var shouldEndSession = true;
-
-  callback({}, buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
-}
-
-// --------------- Helpers that build all of the responses -----------------------
-
-function buildSpeechletResponse(title, output, repromptText, shouldEndSession) {
-  return {
-    outputSpeech: {
-      type: 'PlainText',
-      text: output,
-    },
-    card: {
-      type: 'Simple',
-      title: 'SessionSpeechlet - ' + title,
-      content: 'SessionSpeechlet - ' + output,
-    },
-    reprompt: {
-      outputSpeech: {
-        type: 'PlainText',
-        text: repromptText,
-      },
-    },
-    shouldEndSession: shouldEndSession,
-  };
-}
-
-function buildResponse(sessionAttributes, speechletResponse) {
-  return {
-    version: '1.0',
-    sessionAttributes: sessionAttributes,
-    response: speechletResponse,
-  };
-}
-
-/************************* SOLAR SECTOR DB OPERATIONS *******************************************/
-function getSolarSectors() {}
-
-function updateBadSector(id, eff) {}
+exports.handler = function(event, context, callback) {
+  const alexa = Alexa.handler(event, context, callback);
+  const handlers = Object.assign({}, defaultHandlers, finderHandlers);
+  alexa.registerHandlers(handlers);
+  alexa.appId = APP_ID; // APP_ID is your skill id which can be found in the Amazon developer console where you create the skill.
+  alexa.execute();
+};
