@@ -47,13 +47,13 @@ const finderHandlers = {
     const cardTitle = 'Performing check coin price';
     const intent = this.event.request.intent;
 
+    let speechOutput;    
     try {
       const slots = intent.slots;
       const coin = slots.Coin && slots.Coin.value;
       const coinComparison = slots.CoinComparison && slots.CoinComparison.value;
       const quantity = slots.Quantity && slots.Quantity.value;
 
-      let speechOutput;
       if (!coin) {
         speechOutput = `Sorry you need to provide what coin you want to check`;
       } else {
