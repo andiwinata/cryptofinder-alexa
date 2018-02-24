@@ -3,6 +3,7 @@
 // https://github.com/alexa/skill-sample-nodejs-fact/blob/en-US/lambda/custom/index.js
 
 const Alexa = require('./alexa-sdk-bundle.js');
+const fetch = require('./node-fetch-bundle').default;
 
 const APP_ID = 'amzn1.ask.skill.e915ff40-2010-476f-a846-7ad7e540795c';
 const APP_NAME = 'Crypto Finder';
@@ -48,7 +49,7 @@ const finderHandlers = {
     const cardTitle = 'Performing check coin price';
     const intent = this.event.request.intent;
 
-    let speechOutput;    
+    let speechOutput;
     try {
       const slots = intent.slots;
       const coin = slots.Coin && slots.Coin.value;
@@ -58,7 +59,9 @@ const finderHandlers = {
       if (!coin) {
         speechOutput = `Sorry you need to provide what coin you want to check`;
       } else {
-        speechOutput = `${quantity || 1} ${coin} is equal to ${(Math.random() * 1000 + 100).toFixed(5)} ${coinComparison || 'USD'}`;
+        speechOutput = `${quantity || 1} ${coin} is equal to ${(Math.random() * 1000 + 100).toFixed(
+          5
+        )} ${coinComparison || 'USD'}`;
       }
     } catch (e) {
       speechOutput = `Oops, looks like checking price failed, error: ${JSON.stringify(intent.slots, null, 2)}`;
@@ -83,7 +86,7 @@ const finderHandlers = {
 
   News: function() {
     const cardTitle = 'Performing news check';
-    const speechOutput = `The latest crypto news. Nano Goes Giga in Down Week for Crypto Prices. Bitcoin Is Back Over $10K, but Rally Looks Weak`;
+    const speechOutput = 'The latest crypto news. Nano Goes Giga in Down Week for Crypto Prices. Bitcoin Is Back Over $10K, but Rally Looks Weak';
 
     this.emit(':askWithCard', speechOutput, REPROMPT_SPEECH, cardTitle, speechOutput, undefined);
   },
@@ -93,6 +96,17 @@ const finderHandlers = {
     const speechOutput = 'Your portfolio worths 1.253 bitcoin increasing by 5.24% in the last 24 hours';
 
     this.emit(':askWithCard', speechOutput, REPROMPT_SPEECH, cardTitle, speechOutput, undefined);
+  },
+
+  Test: function() {
+    fetch('https://jsonplaceholder.typicode.com/posts/1')
+      .then(response => response.json())
+      .then(json => {
+        const cardTitle = 'Testing';
+        const speechOutput = `Testing result: ${json.title}`;
+
+        this.emit(':askWithCard', speechOutput, REPROMPT_SPEECH, cardTitle, speechOutput, undefined);
+      });
   },
 };
 
