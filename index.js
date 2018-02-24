@@ -191,18 +191,22 @@ function portfolioBalanceIntent(intent, session, callback) {
 function checkPriceIntent(intent, session, callback) {
   const sessionAttributes = {};
   const cardTitle = 'Performing check coin price';
-  const coin = intent.slots.Coin.value;
-  const coinComparer = intent.slots.CoinComparison.value;
-  const quantity = intent.slots.Quantity.value;
 
-  let speechOutput;
-  if (!coin) {
-    speechOutput = `Sorry you need to provide what coin you want to check`;
-  } else {
-    speechOutput = `${quantity || 1} ${coin} is equal to ${Math.random() * 1000 + 100} ${coinComparer || 'USD'}`;
+  try {
+    const coin = intent.slots.Coin.value;
+    const coinComparison = intent.slots.CoinComparison.value;
+    const quantity = intent.slots.Quantity.value;
+  
+    let speechOutput;
+    if (!coin) {
+      speechOutput = `Sorry you need to provide what coin you want to check`;
+    } else {
+      speechOutput = `${quantity || 1} ${coin} is equal to ${Math.random() * 1000 + 100} ${coinComparison || 'USD'}`;
+    }
+  } catch (e) {
+    speechOutput = `Hello ${JSON.stringify(intent.slots, null, 2)}\n${Math.random()}\n${intent.slots.CoinComparison.value}`;
   }
 
-  // const speechOutput = `Hello ${JSON.stringify(intent.slots, null, 2)}`;
   const shouldEndSession = false;
 
   callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
