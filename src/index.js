@@ -7,6 +7,7 @@ const Alexa = require('./alexa-sdk-bundle.js');
 const APP_ID = 'amzn1.ask.skill.e915ff40-2010-476f-a846-7ad7e540795c';
 const APP_NAME = 'Crypto Finder';
 
+const REPROMPT_SPEECH = 'Thanks for checking in, to quit, try "Alexa exit"';
 const STOP_MESSAGE = 'Happy to help, till next time!';
 
 const defaultHandlers = {
@@ -21,7 +22,7 @@ const defaultHandlers = {
     const imageObj = undefined;
 
     // emit response directly
-    this.emit(':tellWithCard', speechOutput, cardTitle, speechOutput, imageObj);
+    this.emit(':askWithCard', speechOutput, REPROMPT_SPEECH, cardTitle, speechOutput, imageObj);
   },
   'AMAZON.HelpIntent': function() {
     this.emit('LaunchIntent');
@@ -40,7 +41,7 @@ const finderHandlers = {
   CheapestExchange: function() {
     const cardTitle = 'Cheapest Exchange';
     const speechOutput = 'Bittrex has eth for $901.8, compared to average of 21 exchanges sitting on $905.10';
-    this.emit(':tellWithCard', speechOutput, cardTitle, speechOutput, undefined);
+    this.emit(':askWithCard', speechOutput, REPROMPT_SPEECH, cardTitle, speechOutput, undefined);
   },
 
   CheckPrice: function() {
@@ -57,34 +58,41 @@ const finderHandlers = {
       if (!coin) {
         speechOutput = `Sorry you need to provide what coin you want to check`;
       } else {
-        speechOutput = `${quantity || 1} ${coin} is equal to ${Math.random() * 1000 + 100} ${coinComparison || 'USD'}`;
+        speechOutput = `${quantity || 1} ${coin} is equal to ${(Math.random() * 1000 + 100).toFixed(5)} ${coinComparison || 'USD'}`;
       }
     } catch (e) {
       speechOutput = `Oops, looks like checking price failed, error: ${JSON.stringify(intent.slots, null, 2)}`;
     }
 
-    this.emit(':tellWithCard', speechOutput, cardTitle, speechOutput, undefined);
+    this.emit(':askWithCard', speechOutput, REPROMPT_SPEECH, cardTitle, speechOutput, undefined);
+  },
+
+  Joke: function() {
+    const cardTitle = 'Joke';
+    const speechOutput = 'Your portfolio';
+
+    this.emit(':askWithCard', speechOutput, REPROMPT_SPEECH, cardTitle, speechOutput, undefined);
   },
 
   ListCoin: function() {
     const cardTitle = 'Performing check coin portfolio';
     const speechOutput = 'You have 1.253 BitCoin, 10.2534 Ethereum, and 81.342 NEO';
 
-    this.emit(':tellWithCard', speechOutput, cardTitle, speechOutput, undefined);
+    this.emit(':askWithCard', speechOutput, REPROMPT_SPEECH, cardTitle, speechOutput, undefined);
   },
 
   News: function() {
     const cardTitle = 'Performing news check';
     const speechOutput = `The latest crypto news. Nano Goes Giga in Down Week for Crypto Prices. Bitcoin Is Back Over $10K, but Rally Looks Weak`;
 
-    this.emit(':tellWithCard', speechOutput, cardTitle, speechOutput, undefined);
+    this.emit(':askWithCard', speechOutput, REPROMPT_SPEECH, cardTitle, speechOutput, undefined);
   },
 
   PortfolioBalance: function() {
     const cardTitle = 'Performing portfolio balance check';
     const speechOutput = 'Your portfolio worths 1.253 bitcoin increasing by 5.24% in the last 24 hours';
 
-    this.emit(':tellWithCard', speechOutput, cardTitle, speechOutput, undefined);
+    this.emit(':askWithCard', speechOutput, REPROMPT_SPEECH, cardTitle, speechOutput, undefined);
   },
 };
 
