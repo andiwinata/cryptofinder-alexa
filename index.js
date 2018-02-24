@@ -182,7 +182,14 @@ function checkPriceIntent(intent, session, callback) {
   const coinComparer = intent.slots.CoinComparer.value;
   const quantity = intent.slots.Quantity.value;
 
-  const speechOutput = `Hello ${JSON.stringify(intent.slots, null, 2)}`;
+  let speechOutput;
+  if (!coin) {
+    speechOutput = `Sorry you need to provide what coin you want to check`;
+  } else {
+    speechOutput = `${quantity || 1} ${coin} is equal to ${Math.random() * 1000 + 100} ${coinComparer || 'USD'}`;
+  }
+
+  // const speechOutput = `Hello ${JSON.stringify(intent.slots, null, 2)}`;
   const shouldEndSession = false;
 
   callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
