@@ -1,3 +1,5 @@
+// bundling alexa-sdk into 1 file
+// also parses alexa-sdk to es5
 module.exports = {
   entry: './src/index.js',
   output: {

@@ -1,3 +1,4 @@
+// bundling alexa-sdk into 1 file
 module.exports = {
   entry: './node_modules/alexa-sdk/index.js',
   output: {
