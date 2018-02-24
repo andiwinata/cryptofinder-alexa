@@ -2,9 +2,47 @@ var AWS = require('aws-sdk');
 AWS.config.region = 'us-east-1';
 let docClient = new AWS.DynamoDB.DocumentClient();
 
+const Alexa = require('alexa-sdk');
+
+const APP_ID = 'amzn1.ask.skill.e915ff40-2010-476f-a846-7ad7e540795c';
 const APP_NAME = 'Crypto Finder';
 
+const HELP_MESSAGE = 'You can say tell me a space fact, or, you can say exit... What can I help you with?';
+const HELP_REPROMPT = 'What can I help you with?';
+const STOP_MESSAGE = 'Goodbye!';
+
+const handlers = {
+  LaunchRequest: function() {
+    const speechOutput = `Welcome to ${APP_NAME}, how can I help you today?
+    I can check your portfolio balance, the price of coins, or tell you a joke`;
+    this.response.speak(speechOutput);
+    this.emit(':responseReady');
+  },
+  'AMAZON.HelpIntent': function() {
+    const speechOutput = HELP_MESSAGE;
+    const reprompt = HELP_REPROMPT;
+
+    this.response.speak(speechOutput).listen(reprompt);
+    this.emit(':responseReady');
+  },
+  'AMAZON.CancelIntent': function() {
+    this.response.speak(STOP_MESSAGE);
+    this.emit(':responseReady');
+  },
+  'AMAZON.StopIntent': function() {
+    this.response.speak(STOP_MESSAGE);
+    this.emit(':responseReady');
+  },
+};
+
 exports.handler = function(event, context) {
+  const alexa = Alexa.handler(event, context);
+  alexa.appId = APP_ID;
+  alexa.registerHandlers(handlers);
+  alexa.execute();
+
+  return;
+
   try {
     console.log('event.session.application.applicationId=' + event.session.application.applicationId);
     if (event.session.new) {
@@ -166,7 +204,7 @@ function portfolioBalanceIntent(intent, session, callback) {
   const sessionAttributes = {};
   const cardTitle = 'Performing portfolio balance check';
   const speechOutput = 'Your portfolio worths 0.15 bitcoin increasing by 150% in the last 24 hours';
-  const shouldEndSession = false;  
+  const shouldEndSession = false;
 
   callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
 }
@@ -174,7 +212,6 @@ function portfolioBalanceIntent(intent, session, callback) {
 function checkPriceIntent(intent, session, callback) {
   const sessionAttributes = {};
   const cardTitle = 'Performing check coin price';
-  
 }
 
 function handleSessionEndRequest(callback) {
