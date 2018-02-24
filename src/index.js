@@ -2,7 +2,7 @@
 // https://github.com/alexa/alexa-skills-kit-sdk-for-nodejs#confirm-intent-directive
 // https://github.com/alexa/skill-sample-nodejs-fact/blob/en-US/lambda/custom/index.js
 
-const Alexa = require('alexa-sdk');
+const Alexa = require('./alexa-sdk-bundle.js');
 
 const APP_ID = 'amzn1.ask.skill.e915ff40-2010-476f-a846-7ad7e540795c';
 const APP_NAME = 'Crypto Finder';

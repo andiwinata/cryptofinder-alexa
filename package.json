@@ -1,9 +1,11 @@
 {
   "name": "cryptofinder-alexa",
   "version": "1.0.0",
-  "description": "",
+  "description": "Alexa project from cryptofinder hackathon (24-25 Feb 2018)",
   "main": "index.js",
   "scripts": {
+    "webpack": "webpack",
+    "build": "webpack -p --config webpack.prod.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +17,11 @@
   "bugs": {
     "url": "https://github.com/andiwinata/cryptofinder-alexa/issues"
   },
-  "homepage": "https://github.com/andiwinata/cryptofinder-alexa#readme"
+  "homepage": "https://github.com/andiwinata/cryptofinder-alexa#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "webpack": "^3.11.0"
+  }
 }
