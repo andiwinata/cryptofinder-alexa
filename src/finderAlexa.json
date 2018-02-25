@@ -1,0 +1,309 @@
+{
+  "languageModel": {
+    "invocationName": "finder",
+    "intents": [
+      {
+        "name": "AMAZON.CancelIntent",
+        "slots": [],
+        "samples": []
+      },
+      {
+        "name": "AMAZON.HelpIntent",
+        "slots": [],
+        "samples": []
+      },
+      {
+        "name": "AMAZON.StopIntent",
+        "slots": [],
+        "samples": []
+      },
+      {
+        "name": "Efficiency",
+        "slots": [
+          {
+            "name": "GridName",
+            "type": "Letters"
+          }
+        ],
+        "samples": [
+          "for the efficiency",
+          "for the status",
+          "what is the efficiency",
+          "what is the status",
+          "what is the efficiency of {GridName}"
+        ]
+      },
+      {
+        "name": "Noop",
+        "slots": [],
+        "samples": ["no"]
+      },
+      {
+        "name": "Sandstorm",
+        "slots": [
+          {
+            "name": "sector",
+            "type": "Letters"
+          }
+        ],
+        "samples": ["start a sandstorm", "sandstorm", "sandstorm on sector {sector}", "start a sandstorm on {sector}"]
+      },
+      {
+        "name": "Sectors",
+        "slots": [],
+        "samples": [
+          "for the sector efficiency",
+          "tell me the sector efficiency",
+          "list the sector efficiency",
+          "what are the sector efficiencies"
+        ]
+      },
+      {
+        "name": "Sprinklers",
+        "slots": [
+          {
+            "name": "Time",
+            "type": "AMAZON.TIME"
+          },
+          {
+            "name": "Sector",
+            "type": "Letters",
+            "samples": ["Sector {Sector}"]
+          }
+        ],
+        "samples": [
+          "turn on the sprinklers",
+          "yes and send me a message",
+          "yes for {Time}",
+          "turn on the sprinklers for {Time}",
+          "turn on the sprinklers for sector {Sector}",
+          "Sector {Sector} sprinklers on "
+        ]
+      },
+      {
+        "name": "PortfolioBalance",
+        "slots": [],
+        "samples": [
+          "about my balance",
+          "for my balance",
+          "for my portfolio",
+          "portfolio",
+          "about my portfolio",
+          "portfolio balance",
+          "check my portfolio",
+          "what is my portfolio",
+          "how is my portfolio going"
+        ]
+      },
+      {
+        "name": "Joke",
+        "slots": [],
+        "samples": ["for joke", "for a joke", "tell joke", "give me a joke", "give me joke", "tell me a joke"]
+      },
+      {
+        "name": "CheckPrice",
+        "slots": [
+          {
+            "name": "Coin",
+            "type": "Cryptos"
+          },
+          {
+            "name": "CoinComparison",
+            "type": "Cryptos"
+          },
+          {
+            "name": "Quantity",
+            "type": "AMAZON.NUMBER"
+          }
+        ],
+        "samples": [
+          "check price {Coin}",
+          "how much {Coin} worth",
+          "what is the price of {Coin}",
+          "what is the price of {Coin} in {CoinComparison}",
+          "how much is {Coin} {CoinComparison}",
+          "how much {Quantity} {Coin} in {Coin}"
+        ]
+      },
+      {
+        "name": "ListCoin",
+        "slots": [],
+        "samples": ["what coins do I have", "tell me what I have"]
+      },
+      {
+        "name": "Test",
+        "slots": [],
+        "samples": ["run test", "test"]
+      }
+    ],
+    "types": [
+      {
+        "name": "Cryptos",
+        "values": [
+          {
+            "id": "",
+            "name": {
+              "value": "Dash",
+              "synonyms": []
+            }
+          },
+          {
+            "id": "",
+            "name": {
+              "value": "Cardano",
+              "synonyms": []
+            }
+          },
+          {
+            "id": "",
+            "name": {
+              "value": "NEM",
+              "synonyms": []
+            }
+          },
+          {
+            "id": "",
+            "name": {
+              "value": "Stellar",
+              "synonyms": []
+            }
+          },
+          {
+            "id": "",
+            "name": {
+              "value": "Ripple",
+              "synonyms": []
+            }
+          },
+          {
+            "id": "",
+            "name": {
+              "value": "NEO",
+              "synonyms": []
+            }
+          },
+          {
+            "id": "",
+            "name": {
+              "value": "Bitcoin",
+              "synonyms": []
+            }
+          },
+          {
+            "id": "",
+            "name": {
+              "value": "Ethereum",
+              "synonyms": []
+            }
+          },
+          {
+            "id": "",
+            "name": {
+              "value": "Monero",
+              "synonyms": []
+            }
+          },
+          {
+            "id": "",
+            "name": {
+              "value": "Doge Coin",
+              "synonyms": []
+            }
+          },
+          {
+            "id": "",
+            "name": {
+              "value": "E O S",
+              "synonyms": []
+            }
+          }
+        ]
+      },
+      {
+        "name": "Letters",
+        "values": [
+          {
+            "id": "",
+            "name": {
+              "value": "B",
+              "synonyms": []
+            }
+          },
+          {
+            "id": "",
+            "name": {
+              "value": "A",
+              "synonyms": []
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "dialog": {
+    "intents": [
+      {
+        "name": "Sprinklers",
+        "confirmationRequired": false,
+        "prompts": {},
+        "slots": [
+          {
+            "name": "Time",
+            "type": "AMAZON.TIME",
+            "confirmationRequired": false,
+            "elicitationRequired": false,
+            "prompts": {}
+          },
+          {
+            "name": "Sector",
+            "type": "Letters",
+            "confirmationRequired": false,
+            "elicitationRequired": true,
+            "prompts": {
+              "elicitation": "Elicit.Intent-Sprinklers.IntentSlot-Sector"
+            }
+          }
+        ]
+      },
+      {
+        "name": "CheckPrice",
+        "confirmationRequired": false,
+        "prompts": {},
+        "slots": [
+          {
+            "name": "Coin",
+            "type": "Cryptos",
+            "confirmationRequired": false,
+            "elicitationRequired": false,
+            "prompts": {}
+          },
+          {
+            "name": "CoinComparison",
+            "type": "Cryptos",
+            "confirmationRequired": false,
+            "elicitationRequired": false,
+            "prompts": {}
+          },
+          {
+            "name": "Quantity",
+            "type": "AMAZON.NUMBER",
+            "confirmationRequired": false,
+            "elicitationRequired": false,
+            "prompts": {}
+          }
+        ]
+      }
+    ]
+  },
+  "prompts": [
+    {
+      "id": "Elicit.Intent-Sprinklers.IntentSlot-Sector",
+      "variations": [
+        {
+          "type": "PlainText",
+          "value": "Sure which sector?"
+        }
+      ]
+    }
+  ]
+}
